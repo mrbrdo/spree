@@ -298,7 +298,7 @@ module Spree
       self.email          = user.email if override_email
       self.created_by   ||= user
       self.bill_address_id ||= user.bill_address_id
-      self.ship_address_id ||= user.ship_address_id
+      self.ship_address_id ||= user.ship_address_id || user.bill_address_id
 
       changes = slice(:user_id, :email, :created_by_id, :bill_address_id, :ship_address_id)
 
