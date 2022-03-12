@@ -114,7 +114,8 @@ module Spree
 
       ' ' + ActiveSupport::NumberHelper::NumberToPercentageConverter.convert(
         amount * 100,
-        locale: I18n.locale
+        locale: I18n.locale,
+        strip_insignificant_zeros: true
       )
     end
   end
