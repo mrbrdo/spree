@@ -1233,7 +1233,7 @@ describe Spree::Order, type: :model do
     let!(:order) { create(:order) }
 
     context 'with only bill address' do
-      it { expect(order.shipping_eq_billing_address?).to eq(false) }
+      it { expect(order.shipping_eq_billing_address?).to eq(true) }
     end
 
     context 'blank addresses' do
