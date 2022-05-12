@@ -151,7 +151,7 @@ module Spree
     before_validation :ensure_currency_presence
 
     before_validation :clone_billing_address, if: :use_billing?
-    attr_accessor :use_billing
+    attr_writer :use_billing
 
     before_create :create_token
     before_create :link_by_email
@@ -298,7 +298,10 @@ module Spree
       self.email          = user.email if override_email
       self.created_by   ||= user
       self.bill_address_id ||= user.bill_address_id
-      self.ship_address_id ||= user.ship_address_id || user.bill_address_id
+      self.ship_address_id ||= user.ship_address_id
+      if ship_address_id == bill_address_id
+        self.ship_address_id = nil
+      end
 
       changes = slice(:user_id, :email, :created_by_id, :bill_address_id, :ship_address_id)
 
@@ -558,7 +561,9 @@ module Spree
     end
 
     def shipping_eq_billing_address?
-      bill_address == ship_address
+      @use_billing.in?([true, 'true', '1']) ||
+        ship_address.nil? || ship_address.empty? ||
+        ship_address == bill_address
     end
 
     def set_shipments_cost
@@ -689,6 +694,12 @@ module Spree
               spree_promotion_actions: { type: 'Spree::Promotion::Actions::FreeShipping' }).exists?
     end
 
+    def use_billing
+      @use_billing.in?([true, 'true', '1']) ||
+        ship_address.nil? || ship_address.empty? ||
+        ship_address == bill_address
+    end
+
     private
 
     def link_by_email
@@ -732,7 +743,7 @@ module Spree
     end
 
     def use_billing?
-      use_billing.in?([true, 'true', '1'])
+      use_billing
     end
 
     def ensure_currency_presence
