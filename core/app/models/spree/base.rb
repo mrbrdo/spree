@@ -67,4 +67,16 @@ class Spree::Base < ApplicationRecord
   def self.json_api_type
     to_s.demodulize.underscore
   end
+
+  private
+  # Rails bug: https://github.com/rails/rails/issues/26726
+  # Even adding `inverse_of` to `belongs_to` does not solve the issue for us.
+  # We can disable the TouchLater functionality that we don't really need.
+  # TouchLater explanation: https://github.com/rails/rails/issues/18606
+  # Fixed in Rails 7.1
+  if Gem::Version.new(Rails.version) < Gem::Version.new("7.1.0")
+    def belongs_to_touch_method
+      :touch
+    end
+  end
 end
