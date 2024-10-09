@@ -270,10 +270,18 @@ module Spree
       end
 
       def order_by_price(scope, order_type)
-        scope.
-          select("#{Product.table_name}.*, #{Spree::Price.table_name}.amount").
-          reorder('').
-          send(order_type)
+        scope =
+          scope.
+          group(:id).
+          select("#{Product.table_name}.*, MIN(#{Spree::Price.table_name}.amount)").
+          reorder("MIN(#{Spree::Price.table_name}.amount) DESC")
+        if order_type == :descend_by_master_price
+          scope.reorder("MIN(#{Spree::Price.table_name}.amount) DESC")
+        elsif order_type == :ascend_by_master_price
+          scope.reorder("MIN(#{Spree::Price.table_name}.amount)")
+        else
+          scope
+        end
       end
     end
   end
